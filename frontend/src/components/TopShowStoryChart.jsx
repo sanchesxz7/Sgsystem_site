@@ -6,10 +6,11 @@ import {
   useSpring,
   useReducedMotion,
   useMotionValueEvent,
+  useMotionValue,
+  animate,
 } from "framer-motion";
 import { useMediaQuery } from "../hooks/use-media-query";
 import { useInView } from "./CountUp";
-import { staggerContainer, fadeInUp } from "../lib/animations";
 
 // Real case: TOP Show, Jan–Jul 2026. Growth is deliberately not a straight
 // line — the dips (Mar, Mai) are what make the "+1.650% em 6 meses" land as
@@ -230,6 +231,37 @@ function FinalBadge({ progress }) {
   );
 }
 
+// Mobile equivalent of FinalBadge: same imperative-DOM-write technique (see
+// FinalBadge's comment above) since this panel also has several sibling
+// motion values updating at once, but flowed inline below the chart instead
+// of pinned absolute over the header — there isn't enough card height on a
+// phone to float it in a corner without overlapping the title.
+function MobileFinalBadge({ progress }) {
+  const ref = useRef(null);
+  useMotionValueEvent(progress, "change", (v) => {
+    const el = ref.current;
+    if (!el) return;
+    const t = Math.min(1, Math.max(0, (v - 0.86) / (0.94 - 0.86)));
+    el.style.opacity = String(t);
+    el.style.transform = `scale(${0.85 + 0.15 * t})`;
+  });
+  return (
+    <div
+      ref={ref}
+      className="mt-5 inline-block rounded-2xl px-4 py-3"
+      style={{
+        opacity: 0,
+        background: "rgba(16,217,129,0.12)",
+        border: "1px solid rgba(16,217,129,0.4)",
+      }}
+      data-testid="topshow-final-badge"
+    >
+      <span className="font-display font-extrabold text-sgs-green text-xl">+{GROWTH_PCT}%</span>{" "}
+      <span className="text-xs text-slate-300 uppercase tracking-wide">em 6 meses</span>
+    </div>
+  );
+}
+
 function TopShowHeader() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -237,7 +269,12 @@ function TopShowHeader() {
         {/* TODO: substituir por /assets/clients/topshow-logo.svg oficial assim
             que o asset de marca do cliente TOP Show for obtido — não recriar
             o logotipo via código/IA. */}
-        <img src="/assets/clients/topshow-logo.svg" alt="TOP Show" className="h-6 sm:h-7" />
+        <img
+          src="/assets/clients/topshow-logo.svg"
+          alt="TOP Show"
+          loading="lazy"
+          className="h-6 sm:h-7"
+        />
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-mono text-slate-300 uppercase tracking-wide">
           Case real · Jan–Jul 2026
         </span>
@@ -351,119 +388,105 @@ function DesktopTopShowChart() {
   );
 }
 
+// Mobile chart: same data/geometry/sub-components as desktop, but progress
+// is driven by a short tween on view-enter instead of scroll position — a
+// scroll-scrubbed pin doesn't make sense on a phone (no room for a 260vh
+// pin track), and an earlier auto-captured-video version of this reveal
+// baked the whole desktop card into one clip, which read as both undersized
+// (the chart line was a small part of a wide captured frame) and slow (the
+// clip matched desktop's leisurely scroll pacing, ~13s). Native SVG here
+// gives full control over both: real hero-sized chart, ~2s total reveal.
 function MobileTopShowChart() {
-  const [ref, inView] = useInView({ threshold: 0.3 });
-  const videoRef = useRef(null);
+  const [ref, inView] = useInView({ threshold: 0.15 });
+  const hasPlayedRef = useRef(false);
+  const progress = useMotionValue(0);
+
   const points = useMemo(() => buildChartPoints(TOPSHOW_SERIES, CHART_W, CHART_H, CHART_PAD), []);
-  const milestones = points.filter((p) => p.milestone);
-  // Matches the captured video's own pacing (~13s reveal) — the counter and
-  // milestone/badge text below stay real accessible DOM content, only the
-  // chart draw-on itself is a <video> now (see TOPSHOW_VIDEO_MS note below).
-  const TOPSHOW_VIDEO_MS = 13000;
-  const totalRevealMs = TOPSHOW_VIDEO_MS;
+  const segments = useMemo(
+    () =>
+      TOPSHOW_SERIES.slice(0, -1).map((p, i) => ({
+        index: i,
+        up: TOPSHOW_SERIES[i + 1].value >= p.value,
+      })),
+    [],
+  );
+
+  const trendSignal = useTransform(
+    progress,
+    [0, ...segments.map((s) => (pointProgress(s.index) + pointProgress(s.index + 1)) / 2), 1],
+    [0, ...segments.map((s) => (s.up ? 1 : -1)), segments.at(-1).up ? 1 : -1],
+    { clamp: true },
+  );
+  const counterColor = useTransform(
+    trendSignal,
+    [-1, 0, 1],
+    [COLOR_DOWN_HEX, COLOR_NEUTRAL_HEX, COLOR_UP_HEX],
+  );
+
+  const pointProgresses = TOPSHOW_SERIES.map((_, i) => pointProgress(i));
+  const rawValue = useTransform(progress, pointProgresses, TOPSHOW_SERIES.map((p) => p.value));
+  const smoothedValue = useSpring(rawValue, { stiffness: 140, damping: 24 });
 
   useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    if (inView) {
-      el.currentTime = 0;
-      el.play().catch(() => {});
-    } else {
-      el.pause();
-    }
-  }, [inView]);
+    if (!inView || hasPlayedRef.current) return;
+    hasPlayedRef.current = true;
+    const controls = animate(progress, 1, { duration: 2, ease: "easeInOut" });
+    return () => controls.stop();
+  }, [inView, progress]);
 
   return (
     <div
       ref={ref}
-      className="rounded-3xl p-6 sm:p-8 relative overflow-hidden mt-16"
+      className="rounded-3xl p-4 sm:p-6 relative overflow-hidden mt-16"
       style={{ background: "#050505", border: "1px solid rgba(255,255,255,0.06)" }}
       data-testid="topshow-panel"
     >
-      {/* Static, neutral ambient glow — no scroll-driven color shifting on mobile. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          opacity: 0.18,
-          background: "radial-gradient(circle at 50% 40%, rgba(16,217,129,0.4), transparent 65%)",
-        }}
-        aria-hidden="true"
-      />
+      <TrendGlow trendSignal={trendSignal} />
 
       <div className="relative z-10">
-        {/*
-          Real, screen-reader-visible text: the eyebrow/title/description,
-          the "TOP SHOW" wordmark and the R$20k→R$350k counter are all
-          already baked into the captured video's pixels below (it's a
-          recording of the full desktop card, header included) — repeating
-          the big header + live counter here as HTML would just be visual
-          duplication. This heading stays for a11y/SEO; nothing else does.
-        */}
-        <span className="eyebrow">
-          <span className="w-1.5 h-1.5 rounded-full bg-sgs-green" /> Case em destaque
-        </span>
-        <h3 className="sr-only">TOP Show: de R$ 20 mil para R$ 350 mil/mês em 6 meses</h3>
+        <TopShowHeader />
 
-        <div
-          className="relative w-full rounded-2xl overflow-hidden mt-4"
-          style={{ aspectRatio: "960 / 676" }}
-        >
-          {/*
-            Auto-captured recording of the desktop scrub reveal (see
-            lib note in services-3d/data.js for the same pattern) — plays
-            once when scrolled into view instead of re-running the
-            scroll-linked SVG draw-on, which is the heavier of the two on a
-            phone CPU. Not looped on purpose: this is a one-time reveal, not
-            an ambient loop.
-          */}
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="metadata"
-            poster="/assets/videos/topshow.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            data-testid="topshow-video"
-          >
-            <source src="/assets/videos/topshow.webm" type="video/webm" />
-            <source src="/assets/videos/topshow.mp4" type="video/mp4" />
-          </video>
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
+          <div>
+            <span className="eyebrow">
+              <span className="w-1.5 h-1.5 rounded-full bg-sgs-green" /> Case em destaque
+            </span>
+            <h3 className="font-display mt-3 text-xl font-bold text-white">
+              TOP Show: de R$ 20 mil para R$ 350 mil/mês
+            </h3>
+          </div>
+          <LiveTopShowCounter value={smoothedValue} colorMV={counterColor} />
         </div>
 
-        <motion.div
-          variants={staggerContainer(0.08, totalRevealMs / 1000)}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="mt-6 flex flex-wrap gap-3"
-        >
-          {milestones.map((p, i) => (
-            <motion.div
-              key={i}
-              variants={fadeInUp}
-              className="rounded-full bg-black/60 border border-white/10 px-3 py-1.5 text-xs font-mono text-white"
-              data-testid="topshow-milestone"
-            >
-              {p.month} · {p.milestone}
-            </motion.div>
-          ))}
-        </motion.div>
+        <div className="relative w-full" style={{ minHeight: 320 }}>
+          <svg
+            viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+            className="absolute inset-0 w-full h-full"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {segments.map((s) => (
+              <TopShowSegment
+                key={s.index}
+                index={s.index}
+                p1={points[s.index]}
+                p2={points[s.index + 1]}
+                up={s.up}
+                progress={progress}
+              />
+            ))}
+            <TipDot progress={progress} points={points} />
+          </svg>
 
-        <motion.div
-          className="mt-5 inline-block rounded-2xl px-4 py-3"
-          style={{
-            background: "rgba(16,217,129,0.12)",
-            border: "1px solid rgba(16,217,129,0.4)",
-          }}
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }}
-          transition={{ duration: 0.5, delay: totalRevealMs / 1000 }}
-          data-testid="topshow-final-badge"
-        >
-          <span className="font-display font-extrabold text-sgs-green text-xl">
-            +{GROWTH_PCT}%
-          </span>{" "}
-          <span className="text-xs text-slate-300 uppercase tracking-wide">em 6 meses</span>
-        </motion.div>
+          {points.map(
+            (p, i) =>
+              p.milestone && (
+                <TopShowMilestone key={i} point={p} index={i} progress={progress} />
+              ),
+          )}
+        </div>
+
+        <MobileFinalBadge progress={progress} />
       </div>
     </div>
   );
