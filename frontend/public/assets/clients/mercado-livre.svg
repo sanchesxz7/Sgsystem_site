@@ -1,0 +1,19 @@
+<!--
+  PLACEHOLDER — not the official Mercado Livre logo.
+  "Mercado Livre" and its mark are registered trademarks; do not
+  recreate/generate the real logotype via code or AI. Replace this file with
+  the official asset from Mercado Livre's institutional/press brand
+  resources, then remove this notice.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 32">
+  <rect width="120" height="32" rx="8" fill="#FFE600" />
+  <text
+    x="60"
+    y="21"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="12"
+    font-weight="700"
+    fill="#1a1a1a"
+  >Mercado Livre</text>
+</svg>

@@ -1,0 +1,18 @@
+<!--
+  PLACEHOLDER — not the official TOP Show logo.
+  Request the real brand asset from the TOP Show client/account manager;
+  do not recreate their logotype via code or AI. Replace this file (keep the
+  same path) and remove this notice once the official asset is in.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" fill="none">
+  <text
+    x="110"
+    y="38"
+    text-anchor="middle"
+    font-family="Plus Jakarta Sans, Inter, sans-serif"
+    font-weight="800"
+    font-size="30"
+    letter-spacing="2"
+    fill="#F1F5F9"
+  >TOP SHOW</text>
+</svg>

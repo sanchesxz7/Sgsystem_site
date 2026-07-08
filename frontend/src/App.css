@@ -1,0 +1,5 @@
+/* Sanches Group System — App-level scoped styles only */
+.App {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
