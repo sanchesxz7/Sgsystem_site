@@ -15,9 +15,9 @@ const PROJECTS = [
     metric: "+312% em vendas",
     description:
       "Funil de vendas reestruturado + audiovisual profissional + ecossistema digital completo.",
-    image: "/assets/case_angel.png",
+    image: "/assets/case_angel.webp",
     imageBg: "#ffffff",
-    logo: "/assets/case_angel.png",
+    logo: "/assets/case_angel.webp",
     logoBg: "#ffffff",
     accent: "#3b82f6",
   },
@@ -28,9 +28,9 @@ const PROJECTS = [
     metric: "+187% em leads",
     description:
       "Funil de qualificação automática + campanhas locais geo-segmentadas.",
-    image: "/assets/case_construfe.png",
+    image: "/assets/case_construfe.webp",
     imageBg: "#0F1729",
-    logo: "/assets/case_construfe.png",
+    logo: "/assets/case_construfe.webp",
     logoBg: "#0F1729",
     accent: "#38bdf8",
   },
@@ -41,9 +41,9 @@ const PROJECTS = [
     metric: "+20% em faturamento",
     description:
       "Tráfego pago multiplataforma + VSLs high-impact + calendário editorial.",
-    image: "/assets/case_topshow.png",
+    image: "/assets/case_topshow.webp",
     imageBg: "#0a050a",
-    logo: "/assets/case_topshow.png",
+    logo: "/assets/case_topshow.webp",
     logoBg: "#0a050a",
     accent: "#ef4444",
   },
@@ -80,6 +80,7 @@ function LogoBadge({ project }) {
       alt=""
       width={36}
       height={36}
+      loading="lazy"
       className="rounded-full border-2 border-[#0F1729] object-contain"
       style={{ background: project.logoBg }}
     />
@@ -133,7 +134,7 @@ export default function Portfolio() {
               key={f}
               onClick={() => setFilter(f)}
               data-testid={`filter-${f.toLowerCase()}`}
-              className={`px-4 py-2 rounded-full text-sm transition border ${
+              className={`px-4 py-3 rounded-full text-sm transition border ${
                 filter === f
                   ? "bg-white text-[#0a0e1a] border-white"
                   : "border-white/15 text-slate-300 hover:bg-white/5"

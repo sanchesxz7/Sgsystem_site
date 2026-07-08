@@ -28,7 +28,7 @@ export default function SgsLogo({
           }}
         />
         <motion.img
-          src="/assets/logo.png"
+          src="/assets/logo.webp"
           alt="Sanches Group System"
           width={size}
           height={size}
@@ -42,7 +42,7 @@ export default function SgsLogo({
   }
   return (
     <img
-      src="/assets/logo.png"
+      src="/assets/logo.webp"
       alt="Sanches Group System"
       width={size}
       height={size}

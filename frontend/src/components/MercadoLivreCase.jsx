@@ -206,6 +206,9 @@ export default function MercadoLivreCase() {
           <img
             src="/assets/clients/mercado-livre.svg"
             alt="Mercado Livre"
+            width={56}
+            height={56}
+            loading="lazy"
             className="w-11 h-11 sm:w-14 sm:h-14 object-contain"
           />
         </div>

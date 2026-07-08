@@ -7,12 +7,12 @@ const TEAM = [
   {
     name: "Gabriel Sanches",
     role: "Head de Tecnologia",
-    photo: "/assets/team/head-tecnologia.png",
+    photo: "/assets/team/head-tecnologia.webp",
   },
   {
     name: "Thiago",
     role: "Head de Tráfego Digital",
-    photo: "/assets/team/head-trafego.png",
+    photo: "/assets/team/head-trafego.webp",
   },
 ];
 
