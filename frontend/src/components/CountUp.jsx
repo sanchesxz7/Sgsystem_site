@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from "react";
 export function useInView(options = { threshold: 0.3 }) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
+  // Callers pass a fresh object literal on every render, so `options` can't
+  // sit in the deps array without re-running the effect (and re-creating the
+  // observer) on every render. A ref holds the latest value without that.
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -13,7 +18,7 @@ export function useInView(options = { threshold: 0.3 }) {
           obs.unobserve(el);
         }
       },
-      options,
+      optionsRef.current,
     );
     obs.observe(el);
     return () => obs.disconnect();

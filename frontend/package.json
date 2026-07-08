@@ -64,6 +64,11 @@
   "overrides": {
     "stats-gl": {
       "three": "$three"
+    },
+    "schema-utils": {
+      "ajv-keywords": {
+        "ajv": "^8.17.1"
+      }
     }
   },
   "scripts": {
