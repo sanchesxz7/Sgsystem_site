@@ -26,11 +26,22 @@ export default function FinalCTA() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const looksLikeEmailOrPhone = (v) => {
+    const s = v.trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+    const isPhone = s.replace(/\D/g, "").length >= 10;
+    return isEmail || isPhone;
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setError("");
     if (!data.name || !data.contact || !data.revenue) {
       setError("Preencha nome, contato e faixa de faturamento.");
+      return;
+    }
+    if (!looksLikeEmailOrPhone(data.contact)) {
+      setError("Informe um e-mail válido ou um WhatsApp com DDD.");
       return;
     }
     setLoading(true);
@@ -130,12 +141,14 @@ export default function FinalCTA() {
           >
             <div className="space-y-4">
               <div>
-                <label className="text-xs uppercase tracking-wider text-slate-400">
+                <label htmlFor="lead-name" className="text-xs uppercase tracking-wider text-slate-400">
                   Nome
                 </label>
                 <input
+                  id="lead-name"
                   type="text"
                   required
+                  maxLength={80}
                   value={data.name}
                   onChange={(e) => setData({ ...data, name: e.target.value })}
                   className="mt-1 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sgs-green/60 focus:bg-white/[0.07] transition"
@@ -144,12 +157,14 @@ export default function FinalCTA() {
                 />
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wider text-slate-400">
+                <label htmlFor="lead-contact" className="text-xs uppercase tracking-wider text-slate-400">
                   E-mail ou WhatsApp
                 </label>
                 <input
+                  id="lead-contact"
                   type="text"
                   required
+                  maxLength={160}
                   value={data.contact}
                   onChange={(e) =>
                     setData({ ...data, contact: e.target.value })
@@ -160,10 +175,11 @@ export default function FinalCTA() {
                 />
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wider text-slate-400">
+                <label htmlFor="lead-revenue" className="text-xs uppercase tracking-wider text-slate-400">
                   Faturamento atual
                 </label>
                 <select
+                  id="lead-revenue"
                   required
                   value={data.revenue}
                   onChange={(e) =>
@@ -183,11 +199,13 @@ export default function FinalCTA() {
                 </select>
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wider text-slate-400">
+                <label htmlFor="lead-message" className="text-xs uppercase tracking-wider text-slate-400">
                   Mensagem (opcional)
                 </label>
                 <textarea
+                  id="lead-message"
                   rows={3}
+                  maxLength={1000}
                   value={data.message}
                   onChange={(e) =>
                     setData({ ...data, message: e.target.value })
