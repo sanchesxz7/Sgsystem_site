@@ -304,7 +304,7 @@ export default function Method() {
               </div>
               <p className="mt-5 text-slate-300 leading-relaxed">{active.detail}</p>
               <div className="mt-5">
-                <div className="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                <div className="text-xs uppercase tracking-wider text-slate-400 mb-2">
                   Ferramentas e práticas
                 </div>
                 <div className="flex flex-wrap gap-2">
