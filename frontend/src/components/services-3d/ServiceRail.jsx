@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
 import { ANIMATED_SERVICE_ICONS } from "./AnimatedServiceIcons";
@@ -8,6 +9,7 @@ import { ANIMATED_SERVICE_ICONS } from "./AnimatedServiceIcons";
 // loop, so the fill animates at 60fps without going through React state.
 export default function ServiceRail({ services, activeIndex, progressBarRef }) {
   const active = services[activeIndex];
+  const navigate = useNavigate();
   const ActiveIcon = ANIMATED_SERVICE_ICONS[active.id];
 
   return (
@@ -41,7 +43,15 @@ export default function ServiceRail({ services, activeIndex, progressBarRef }) {
                 {active.title}
               </h3>
               {active.logoOverride && (
-                <img src={active.logoOverride} alt="" aria-hidden="true" className="w-6 h-6" />
+                <img
+                  src={active.logoOverride}
+                  alt=""
+                  aria-hidden="true"
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                  className="w-6 h-6"
+                />
               )}
             </div>
             <p className="text-slate-400 leading-relaxed mb-5">{active.desc}</p>
@@ -53,7 +63,11 @@ export default function ServiceRail({ services, activeIndex, progressBarRef }) {
                 </li>
               ))}
             </ul>
-            <button className="inline-flex items-center gap-1.5 text-sm text-white border border-white/15 px-4 py-2 rounded-full hover:bg-white/5 transition">
+            <button
+              type="button"
+              onClick={() => navigate(`/diagnostico?interesse=${active.id}`)}
+              className="inline-flex items-center gap-1.5 text-sm text-white border border-white/15 px-4 py-2 rounded-full hover:bg-white/5 transition"
+            >
               Saiba mais <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </motion.div>

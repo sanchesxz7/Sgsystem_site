@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { useInView } from "../CountUp";
@@ -13,6 +14,7 @@ import { ANIMATED_SERVICE_ICONS } from "./AnimatedServiceIcons";
 function ServiceCard({ service, index }) {
   const [ref, inView] = useInView({ threshold: 0.35 });
   const videoRef = useRef(null);
+  const navigate = useNavigate();
   const Icon = ANIMATED_SERVICE_ICONS[service.id];
 
   useEffect(() => {
@@ -60,6 +62,9 @@ function ServiceCard({ service, index }) {
                 src={service.logoOverride}
                 alt=""
                 aria-hidden="true"
+                width={16}
+                height={16}
+                loading="lazy"
                 className="absolute -right-1 -bottom-1 w-4 h-4"
               />
             )}
@@ -80,6 +85,9 @@ function ServiceCard({ service, index }) {
                 src={service.logoOverride}
                 alt=""
                 aria-hidden="true"
+                width={20}
+                height={20}
+                loading="lazy"
                 className="absolute right-1 bottom-1 w-5 h-5"
               />
             )}
@@ -98,7 +106,11 @@ function ServiceCard({ service, index }) {
             </li>
           ))}
         </ul>
-        <button className="inline-flex items-center gap-1.5 text-sm text-white border border-white/15 px-4 py-2 rounded-full hover:bg-white/5 transition">
+        <button
+          type="button"
+          onClick={() => navigate(`/diagnostico?interesse=${service.id}`)}
+          className="inline-flex items-center gap-1.5 text-sm text-white border border-white/15 px-4 py-2 rounded-full hover:bg-white/5 transition"
+        >
           Saiba mais <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

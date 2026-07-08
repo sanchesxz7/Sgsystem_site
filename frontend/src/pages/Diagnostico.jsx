@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, MessageCircle } from "lucide-react";
 import SgsLogo from "../components/SgsLogo";
+import { SERVICES } from "../components/services-3d/data";
 import {
   initialDiagnosticoData,
   NICHO_OPTIONS,
@@ -11,6 +12,7 @@ import {
   GARGALO_OPTIONS,
   MAX_GARGALOS,
   submitDiagnostico,
+  isValidPhoneBR,
 } from "../lib/diagnostico";
 
 function maskPhoneBR(raw) {
@@ -70,6 +72,7 @@ const STEPS = [
           value={data.nome}
           onChange={(e) => update({ nome: e.target.value })}
           placeholder="Seu nome"
+          maxLength={80}
           className={inputClass}
           data-testid="diag-input-nome"
         />
@@ -90,6 +93,7 @@ const STEPS = [
             value={data.negocio}
             onChange={(e) => update({ negocio: e.target.value })}
             placeholder="Nome do negócio"
+            maxLength={100}
             className={inputClass}
             data-testid="diag-input-negocio"
           />
@@ -98,6 +102,9 @@ const STEPS = [
             value={data.site}
             onChange={(e) => update({ site: e.target.value })}
             placeholder="Site (se tiver) — https://..."
+            maxLength={200}
+            pattern="https?://.*"
+            title="Use um link começando com http:// ou https://"
             className={inputClass}
             data-testid="diag-input-site"
           />
@@ -134,6 +141,7 @@ const STEPS = [
             value={data.nichoOutro}
             onChange={(e) => update({ nichoOutro: e.target.value })}
             placeholder="Qual?"
+            maxLength={60}
             className={`${inputClass} mt-3`}
             data-testid="diag-input-nicho-outro"
           />
@@ -171,6 +179,7 @@ const STEPS = [
                     update({ redes: { ...data.redes, [key]: e.target.value } })
                   }
                   placeholder="@perfil ou link"
+                  maxLength={120}
                   className={`${inputClass} !text-base !py-2.5`}
                   data-testid={`diag-input-rede-${key}`}
                 />
@@ -197,6 +206,7 @@ const STEPS = [
           value={data.publico}
           onChange={(e) => update({ publico: e.target.value })}
           placeholder="Descreva seu público-alvo"
+          maxLength={300}
           className={`${inputClass} resize-none`}
           data-testid="diag-input-publico"
         />
@@ -305,6 +315,7 @@ const STEPS = [
           value={data.objetivo}
           onChange={(e) => update({ objetivo: e.target.value })}
           placeholder="Ex: dobrar o faturamento, estruturar o time comercial..."
+          maxLength={300}
           className={`${inputClass} resize-none`}
           data-testid="diag-input-objetivo"
         />
@@ -314,7 +325,7 @@ const STEPS = [
   {
     key: "whatsapp",
     required: true,
-    isValid: (d) => d.whatsapp.replace(/\D/g, "").length >= 10 && d.consentimento,
+    isValid: (d) => isValidPhoneBR(d.whatsapp) && d.consentimento,
     render: ({ data, update, autoFocusRef }) => (
       <>
         <Question>Qual seu WhatsApp?</Question>
@@ -356,9 +367,17 @@ const slideVariants = {
 };
 
 export default function Diagnostico() {
+  const location = useLocation();
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [data, setData] = useState(initialDiagnosticoData);
+  const [data, setData] = useState(() => {
+    // Arriving from a service card's "Saiba mais" (?interesse=dev-web):
+    // carry the service name through to the final WhatsApp message without
+    // making it its own wizard step.
+    const interesseId = new URLSearchParams(location.search).get("interesse");
+    const service = SERVICES.find((s) => s.id === interesseId);
+    return service ? { ...initialDiagnosticoData, interesse: service.title } : initialDiagnosticoData;
+  });
   const [done, setDone] = useState(false);
   const autoFocusRef = useRef(null);
 

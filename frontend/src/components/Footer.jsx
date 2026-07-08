@@ -1,15 +1,8 @@
-import {
-  Instagram,
-  Linkedin,
-  Youtube,
-  Mail,
-  Phone,
-  MessageCircle,
-  Send,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { Instagram, Mail, Phone, MessageCircle } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SgsLogo from "./SgsLogo";
 import { buildWhatsAppUrl } from "../lib/constants";
+import { scrollToId } from "../lib/scroll";
 
 const SERVICES = [
   "Desenvolvimento Web",
@@ -30,6 +23,21 @@ const COMPANY = [
 const WHATSAPP_URL = buildWhatsAppUrl("Olá! Vim pelo site da Sanches Group System.");
 
 export default function Footer() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Same cross-route-safe pattern as Navbar's goToSection: works when the
+  // footer is on "/" (scrolls via Lenis) and would still work correctly if
+  // ever rendered from another route.
+  const goToSection = (id) => (e) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      scrollToId(id);
+    } else {
+      navigate("/", { state: { scrollTo: id } });
+    }
+  };
+
   return (
     <footer
       className="relative pt-16 pb-10 bg-[#0a1020] border-t border-white/5"
@@ -52,7 +60,7 @@ export default function Footer() {
             Códigos que escalam negócios. Soluções digitais corporativas para o
             crescimento mensurável.
           </p>
-          <p className="mt-2 text-xs uppercase tracking-wider text-slate-500">
+          <p className="mt-2 text-xs uppercase tracking-wider text-slate-400">
             Atendimento 100% online · Brasil
           </p>
           <div className="mt-5 flex items-center gap-2">
@@ -76,25 +84,11 @@ export default function Footer() {
             >
               <MessageCircle className="w-4 h-4" />
             </a>
-            <a
-              href="#"
-              aria-label="LinkedIn"
-              className="w-9 h-9 grid place-items-center rounded-full border border-white/10 text-slate-300 hover:bg-white/5 hover:text-white transition"
-            >
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a
-              href="#"
-              aria-label="YouTube"
-              className="w-9 h-9 grid place-items-center rounded-full border border-white/10 text-slate-300 hover:bg-white/5 hover:text-white transition"
-            >
-              <Youtube className="w-4 h-4" />
-            </a>
           </div>
         </div>
 
         <div>
-          <div className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+          <div className="text-xs uppercase tracking-wider text-slate-400 mb-4">
             Serviços
           </div>
           <ul className="space-y-2">
@@ -102,6 +96,7 @@ export default function Footer() {
               <li key={s}>
                 <a
                   href="#servicos"
+                  onClick={goToSection("servicos")}
                   className="text-slate-300 hover:text-white transition"
                 >
                   {s}
@@ -111,7 +106,7 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <div className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+          <div className="text-xs uppercase tracking-wider text-slate-400 mb-4">
             Empresa
           </div>
           <ul className="space-y-2">
@@ -129,6 +124,7 @@ export default function Footer() {
                 <li key={s.label}>
                   <a
                     href={s.href}
+                    onClick={goToSection(s.href.slice(1))}
                     className="text-slate-300 hover:text-white transition"
                   >
                     {s.label}
@@ -140,7 +136,7 @@ export default function Footer() {
         </div>
 
         <div>
-          <div className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+          <div className="text-xs uppercase tracking-wider text-slate-400 mb-4">
             Contato
           </div>
           <ul className="space-y-3 text-slate-300 text-sm">
@@ -176,39 +172,27 @@ export default function Footer() {
               </a>
             </li>
           </ul>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="mt-5 flex items-center gap-2"
-          >
-            <input
-              type="email"
-              placeholder="Receber novidades"
-              aria-label="Email para newsletter"
-              className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-white/30"
-            />
-            <button
-              type="submit"
-              className="w-10 h-10 rounded-full bg-sgs-green text-[#04231b] grid place-items-center hover:scale-105 transition"
-              aria-label="Inscrever na newsletter"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
         </div>
       </div>
 
-      <div className="container-x mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div className="container-x mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
         <div>
           © {new Date().getFullYear()} Sanches Group System · Todos os direitos
           reservados
         </div>
+        {/*
+          Política de Privacidade / Termos de Uso: no published pages exist
+          yet for these (pending real legal copy from the client), so they're
+          intentionally plain, non-clickable text rather than dead `href="#"`
+          links. Swap back to real links once those pages exist.
+        */}
         <div className="flex items-center gap-5">
-          <a href="#" className="hover:text-white transition">
+          <span className="cursor-default text-slate-400" title="Em breve">
             Política de Privacidade
-          </a>
-          <a href="#" className="hover:text-white transition">
+          </span>
+          <span className="cursor-default text-slate-400" title="Em breve">
             Termos de Uso
-          </a>
+          </span>
         </div>
       </div>
     </footer>
