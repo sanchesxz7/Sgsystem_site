@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, Unlock, Crown, Sparkles, Activity, ArrowRight } from "lucide-react";
 import { fadeInUp, staggerContainer, viewportOnce } from "../lib/animations";
@@ -29,6 +30,7 @@ const PROJECTS = [
 
 export default function VipLive() {
   const [unlocked, setUnlocked] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <section
@@ -121,7 +123,11 @@ export default function VipLive() {
             </p>
             <div className="mt-6 flex flex-col gap-2">
               <a
-                href="#contato"
+                href="/diagnostico"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/diagnostico");
+                }}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] font-semibold hover:scale-[1.02] transition"
                 data-testid="vip-cta-access"
               >

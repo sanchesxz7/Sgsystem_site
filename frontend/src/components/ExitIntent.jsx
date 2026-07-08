@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, ArrowRight } from "lucide-react";
 
@@ -6,6 +7,7 @@ const SESSION_KEY = "sgs-exit-intent-shown";
 
 export default function ExitIntent() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -88,8 +90,12 @@ export default function ExitIntent() {
               <li>✓ Resposta em até 24h úteis</li>
             </ul>
             <a
-              href="#contato"
-              onClick={() => setOpen(false)}
+              href="/diagnostico"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                navigate("/diagnostico");
+              }}
               className="mt-6 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] font-semibold hover:scale-[1.02] transition glow-cta"
               data-testid="exit-intent-cta"
             >

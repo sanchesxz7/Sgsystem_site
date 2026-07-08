@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Rocket } from "lucide-react";
 import SgsLogo from "../components/SgsLogo";
@@ -10,7 +10,7 @@ const CASES_DATA = {
     metric: "+312%",
     metricLabel: "em vendas",
     period: "após estruturação completa",
-    logo: "/assets/case_angel.png",
+    logo: "/assets/case_angel.webp",
     logoBg: "#ffffff",
     color: "from-blue-400 to-pink-400",
     pillars: [
@@ -26,7 +26,7 @@ const CASES_DATA = {
     metric: "+187%",
     metricLabel: "em leads qualificadas e visitas",
     period: "em 90 dias",
-    logo: "/assets/case_construfe.png",
+    logo: "/assets/case_construfe.webp",
     logoBg: "#0F1729",
     color: "from-cyan-400 to-blue-500",
     pillars: [
@@ -42,7 +42,7 @@ const CASES_DATA = {
     metric: "+20%",
     metricLabel: "no faturamento",
     period: "em 90 dias",
-    logo: "/assets/case_topshow.png",
+    logo: "/assets/case_topshow.webp",
     logoBg: "#0a050a",
     color: "from-red-500 to-blue-500",
     pillars: [
@@ -56,6 +56,7 @@ const CASES_DATA = {
 
 export default function CaseStudy() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const c = CASES_DATA[slug];
 
   if (!c) {
@@ -121,6 +122,9 @@ export default function CaseStudy() {
             <img
               src={c.logo}
               alt={`Logo ${c.name}`}
+              width={64}
+              height={64}
+              loading="lazy"
               className="w-full h-full object-contain"
             />
           </div>
@@ -178,12 +182,16 @@ export default function CaseStudy() {
             Estamos finalizando o case study detalhado com imagens, números e
             depoimento em vídeo. Quer ser avisado em primeira mão?
           </p>
-          <Link
-            to="/#contato"
+          <a
+            href="/#contato"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/", { state: { scrollTo: "contato" } });
+            }}
             className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] font-semibold hover:scale-[1.03] transition"
           >
             Quero receber o case <ArrowRight className="w-4 h-4" />
-          </Link>
+          </a>
         </motion.div>
       </section>
     </main>

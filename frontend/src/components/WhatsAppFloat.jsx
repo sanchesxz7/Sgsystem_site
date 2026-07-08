@@ -14,7 +14,7 @@ export default function WhatsAppFloat() {
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1.4, type: "spring", stiffness: 200, damping: 18 }}
-      className="fixed bottom-5 right-5 z-[60] w-14 h-14 rounded-full grid place-items-center text-white shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition"
+      className="hidden sm:grid fixed bottom-5 right-5 z-[60] w-14 h-14 rounded-full place-items-center text-white shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 transition"
       style={{
         background: "linear-gradient(135deg, #25D366, #128C7E)",
       }}

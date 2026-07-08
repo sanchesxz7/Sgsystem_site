@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, Star, CheckCircle2 } from "lucide-react";
 import SgsLogo from "./SgsLogo";
+import { scrollToId } from "../lib/scroll";
 
 const HEADLINE_WORDS = [
   "Soluções",
@@ -291,6 +293,17 @@ function Counter({ to, prefix = "", suffix = "", duration = 2000, className }) {
 }
 
 export default function Hero() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const goToCases = (e) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      scrollToId("cases");
+    } else {
+      navigate("/", { state: { scrollTo: "cases" } });
+    }
+  };
+
   return (
     <section
       id="hero"
@@ -363,7 +376,11 @@ export default function Hero() {
               className="mt-8 flex flex-wrap items-center gap-3"
             >
               <a
-                href="#contato"
+                href="/diagnostico"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/diagnostico");
+                }}
                 data-testid="hero-cta-primary"
                 className="cta-primary group inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-[#04231b] font-semibold"
               >
@@ -371,11 +388,12 @@ export default function Hero() {
                 Falar com Consultor
               </a>
               <a
-                href="#contato"
+                href="#cases"
+                onClick={goToCases}
                 data-testid="hero-cta-secondary"
                 className="cta-secondary group inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold"
               >
-                Solicitar Acesso à Plataforma
+                Ver Cases de Sucesso
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
             </motion.div>
@@ -388,9 +406,9 @@ export default function Hero() {
             >
               <div className="flex items-center" data-testid="hero-logo-stack">
                 {[
-                  { src: "/assets/case_angel.png", alt: "Angel Doces", bg: "#ffffff" },
-                  { src: "/assets/case_construfe.png", alt: "Construfé", bg: "#0F1729" },
-                  { src: "/assets/case_topshow.png", alt: "Top Show", bg: "#0a050a" },
+                  { src: "/assets/case_angel.webp", alt: "Angel Doces", bg: "#ffffff" },
+                  { src: "/assets/case_construfe.webp", alt: "Construfé", bg: "#0F1729" },
+                  { src: "/assets/case_topshow.webp", alt: "Top Show", bg: "#0a050a" },
                 ].map((l, i) => (
                   <img
                     key={l.alt}

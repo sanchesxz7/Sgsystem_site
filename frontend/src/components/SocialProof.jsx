@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   TrendingUp,
@@ -37,7 +38,7 @@ const CASES = [
     slug: "angel-doces",
     name: "Angel Doces",
     sector: "Confeitaria artesanal",
-    logo: "/assets/case_angel.png",
+    logo: "/assets/case_angel.webp",
     logoBg: "#ffffff",
     metric: "+312%",
     metricLabel: "em vendas",
@@ -51,7 +52,7 @@ const CASES = [
     slug: "construfe",
     name: "Construfé",
     sector: "Indústria e construção",
-    logo: "/assets/case_construfe.png",
+    logo: "/assets/case_construfe.webp",
     logoBg: "#0F1729",
     metric: "+187%",
     metricLabel: "em leads qualificadas e visitas",
@@ -65,7 +66,7 @@ const CASES = [
     slug: "top-show",
     name: "Top Show",
     sector: "Entretenimento e eventos",
-    logo: "/assets/case_topshow.png",
+    logo: "/assets/case_topshow.webp",
     logoBg: "#0a050a",
     metric: "+20%",
     metricLabel: "no faturamento",
@@ -262,13 +263,13 @@ export default function SocialProof() {
                   "{c.quote}"
                 </p>
               </div>
-              <a
-                href={`/cases/${c.slug}`}
+              <Link
+                to={`/cases/${c.slug}`}
                 className="mt-5 inline-flex items-center gap-1 text-sm text-sgs-green hover:gap-2 transition-all"
                 data-testid={`case-link-${c.slug}`}
               >
                 Ver case completo →
-              </a>
+              </Link>
             </motion.article>
           ))}
         </div>

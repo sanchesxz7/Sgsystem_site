@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Rss } from "lucide-react";
 import SgsLogo from "../components/SgsLogo";
 
 export default function Blog() {
+  const navigate = useNavigate();
   return (
     <main className="min-h-screen relative pb-24" data-testid="page-blog">
       <div
@@ -60,12 +61,16 @@ export default function Blog() {
           ajudar empresas a crescer com previsibilidade. Quer receber em
           primeira mão?
         </motion.p>
-        <Link
-          to="/#contato"
+        <a
+          href="/#contato"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/", { state: { scrollTo: "contato" } });
+          }}
           className="mt-8 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] font-semibold hover:scale-[1.03] transition"
         >
           Inscrever-me <ArrowRight className="w-4 h-4" />
-        </Link>
+        </a>
       </section>
     </main>
   );

@@ -1,21 +1,27 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowRight } from "lucide-react";
 import SgsLogo from "./SgsLogo";
+import ComingSoonModal from "./ComingSoonModal";
+import { scrollToId } from "../lib/scroll";
 
 const NAV_LINKS = [
-  { label: "Home", href: "#hero" },
-  { label: "Serviços", href: "#servicos" },
-  { label: "Método", href: "#metodo" },
-  { label: "Cases", href: "#cases" },
-  { label: "Equipe", href: "#equipe" },
-  { label: "VIP", href: "#vip" },
-  { label: "Contato", href: "#contato" },
+  { label: "Home", id: "hero" },
+  { label: "Serviços", id: "servicos" },
+  { label: "Método", id: "metodo" },
+  { label: "Cases", id: "cases" },
+  { label: "Equipe", id: "equipe" },
+  { label: "VIP", id: "vip" },
+  { label: "Contato", id: "contato" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [clientAreaOpen, setClientAreaOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -23,6 +29,19 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Works from any route: on "/" it scrolls (via Lenis when active); from
+  // elsewhere it navigates home first and queues the section for
+  // useScrollToOnMount (see App.js) to jump to once Landing has mounted.
+  const goToSection = (id) => (e) => {
+    e.preventDefault();
+    setOpen(false);
+    if (location.pathname === "/") {
+      scrollToId(id);
+    } else {
+      navigate("/", { state: { scrollTo: id } });
+    }
+  };
 
   return (
     <>
@@ -40,6 +59,7 @@ export default function Navbar() {
         <div className="container-x flex items-center justify-between h-[68px]">
           <a
             href="#hero"
+            onClick={goToSection("hero")}
             className="flex items-center gap-3 group"
             data-testid="nav-logo"
           >
@@ -52,8 +72,9 @@ export default function Navbar() {
           <nav className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((l) => (
               <a
-                key={l.href}
-                href={l.href}
+                key={l.id}
+                href={`#${l.id}`}
+                onClick={goToSection(l.id)}
                 data-testid={`nav-link-${l.label.toLowerCase()}`}
                 className="px-4 py-2 rounded-full text-sm text-slate-300 hover:text-white hover:bg-white/5 transition"
               >
@@ -63,23 +84,25 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <a
-              href="#contato"
+            <button
+              type="button"
+              onClick={() => setClientAreaOpen(true)}
               data-testid="nav-cliente-area"
               className="hidden md:inline-flex text-sm text-slate-300 hover:text-white px-4 py-2 transition"
             >
               Área do Cliente
-            </a>
-            <a
-              href="#contato"
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/diagnostico")}
               data-testid="nav-cta"
               className="magnetic-btn hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sgs-green text-[#04231b] text-sm font-semibold hover:scale-[1.03] transition shadow-[0_0_24px_rgba(16,217,129,0.4)]"
             >
               Solicitar Acesso <ArrowRight className="w-4 h-4" />
-            </a>
+            </button>
             <button
               onClick={() => setOpen(true)}
-              className="lg:hidden inline-flex w-10 h-10 items-center justify-center rounded-full border border-white/10 text-white"
+              className="lg:hidden inline-flex w-11 h-11 items-center justify-center rounded-full border border-white/10 text-white"
               aria-label="Abrir menu"
               data-testid="mobile-menu-open"
             >
@@ -118,7 +141,7 @@ export default function Navbar() {
                 <button
                   onClick={() => setOpen(false)}
                   aria-label="Fechar menu"
-                  className="w-10 h-10 rounded-full border border-white/10 grid place-items-center text-white"
+                  className="w-11 h-11 rounded-full border border-white/10 grid place-items-center text-white"
                   data-testid="mobile-menu-close"
                 >
                   <X className="w-5 h-5" />
@@ -126,10 +149,10 @@ export default function Navbar() {
               </div>
               <ul className="space-y-1">
                 {NAV_LINKS.map((l) => (
-                  <li key={l.href}>
+                  <li key={l.id}>
                     <a
-                      onClick={() => setOpen(false)}
-                      href={l.href}
+                      href={`#${l.id}`}
+                      onClick={goToSection(l.id)}
                       className="block px-4 py-3 rounded-lg text-slate-200 hover:bg-white/5 hover:text-white transition text-base font-medium"
                     >
                       {l.label}
@@ -138,8 +161,12 @@ export default function Navbar() {
                 ))}
               </ul>
               <a
-                onClick={() => setOpen(false)}
-                href="#contato"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  navigate("/diagnostico");
+                }}
+                href="/diagnostico"
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] text-base font-semibold"
                 data-testid="mobile-cta"
               >
@@ -149,6 +176,13 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
+
+      <ComingSoonModal
+        open={clientAreaOpen}
+        onClose={() => setClientAreaOpen(false)}
+        title="Área do Cliente"
+        subtitle="O portal de acompanhamento dedicado para clientes SGS está a caminho."
+      />
     </>
   );
 }

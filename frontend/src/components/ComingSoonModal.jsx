@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Rocket, X } from "lucide-react";
+import { scrollToId } from "../lib/scroll";
 
 export default function ComingSoonModal({ open, onClose, title, subtitle }) {
   return (
@@ -49,7 +50,11 @@ export default function ComingSoonModal({ open, onClose, title, subtitle }) {
             </p>
             <a
               href="#contato"
-              onClick={onClose}
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+                scrollToId("contato");
+              }}
               className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-sgs-green text-[#04231b] font-semibold hover:scale-[1.03] transition"
             >
               Quero ser avisado em primeira mão

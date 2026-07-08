@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Lenis from "lenis";
+import { setActiveLenis, scrollToId } from "@/lib/scroll";
 
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -38,6 +39,7 @@ function useLenis() {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+    setActiveLenis(lenis);
     let raf;
     const tick = (time) => {
       lenis.raf(time);
@@ -46,13 +48,32 @@ function useLenis() {
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
+      setActiveLenis(null);
       lenis.destroy();
     };
   }, []);
 }
 
+// Anchor links (navbar, "em breve" modals, etc.) can be clicked from any
+// route via `navigate("/", { state: { scrollTo: id } })` — this picks that
+// up once Landing (and its Lenis instance) has actually mounted, then clears
+// the state so browser back/forward doesn't replay the scroll.
+function useScrollToOnMount() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const id = location.state?.scrollTo;
+    if (!id) return;
+    const raf = requestAnimationFrame(() => scrollToId(id));
+    navigate(location.pathname, { replace: true, state: {} });
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
 function Landing() {
   useLenis();
+  useScrollToOnMount();
   return (
     <div className="App" data-testid="landing">
       <Navbar />
@@ -80,9 +101,24 @@ function Landing() {
   );
 }
 
+// React Router (unlike a traditional MPA) keeps whatever scroll position the
+// previous page had — without this, navigating e.g. Landing (scrolled deep)
+// -> /diagnostico lands the user mid-page instead of at the top. Skipped
+// when a `scrollTo` section jump is queued (useScrollToOnMount) so there's
+// no top-of-page flash before that jump runs.
+function ScrollToTop() {
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.scrollTo) return;
+    window.scrollTo(0, 0);
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/obrigado" element={<ThankYou />} />
